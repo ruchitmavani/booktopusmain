@@ -6,11 +6,11 @@ var logger = require('morgan');
 var cors = require('cors');
 var bodyParser = require('body-parser');  // body parser to handle post request
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var authRouter = require('./routes/authUser');
-var regApi = require('./routes/registerAPI');
-var book = require('./routes/imageUploadRoute');
+var indexRouter = require('./routesMain/index');
+var usersRouter = require('./routesMain/users');
+var authRouter = require('./routesMain/authUser');
+var regApi = require('./routesMain/registerAPI');
+var book = require('./routesMain/imageUploadRoute');
 
 var app = express();
 

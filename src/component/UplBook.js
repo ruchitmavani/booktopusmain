@@ -8,7 +8,7 @@ export class UplBook extends Component {
 
           // step 1
           file: null,
-          pictures: [],
+          // pictures: [],
           msg: ''
           // step 2
 
@@ -27,21 +27,38 @@ export class UplBook extends Component {
      }
      handleChange = input => e => {
           this.setState({ [input]: e.target.value });
+
      }
-     fileChange = event => {
+     fileChange = e => {
+          e.preventDefault();
+          // this.setState({
+          //      file: e.target.files[0],
+          // })
+          // console.log(e.target.files);
+          // console.log(e.target.files[0]);
+          let file = e.target.files[0];
           this.setState({
-               file: event.target.files[0],
+               file: file
           })
      }
-     imageTraceHandler = async () => {
+     imageTraceHandler = async (e) => {
 
+          e.preventDefault();
+
+          const headers = {
+               "Content-Type": "form-data"
+          };
           /**
            * Here we convert our image into text
            */
+          let file = this.state.file
+          console.log(this.state.file)
+          let formData = new FormData();
+          formData.append('images', file);
+
           try {
-               await axios('/book/imageTrace', {
-                    file: this.state.file
-               })
+               await axios
+                    .post('/book/imageTrace', formData, headers)
                     .then(res => {
                          alert('Into the right one');
                          this.setState({
@@ -52,7 +69,7 @@ export class UplBook extends Component {
                          // this.setState({
                          //      step: step + 1
                          // });
-
+                         this.nextStep();
                     })
                     .catch(err => {
 
@@ -70,7 +87,7 @@ export class UplBook extends Component {
           }
 
 
-          this.nextStep();
+
      }
      showStep = () => {
           const { step, } = this.state;
@@ -78,10 +95,10 @@ export class UplBook extends Component {
                return (
                     <div style={{ overflow: 'hidden', backgroundColor: '#e0e0e0', margin: 'auto', width: '30%', marginTop: '20%', padding: '0', borderRadius: '53px' }}>
 
-                         <Form style={{ marginTop: '15%', marginLeft: '15%', marginBottom: '15%', fontFamily: 'Verdana' }}>
+                         <Form style={{ marginTop: '15%', marginLeft: '15%', marginBottom: '15%', fontFamily: 'Verdana' }} enctype="multipart/form-data">
                               <Form.Group >
                                    <Form.Label for="exampleFile" style={{ fontSize: '16px' }} >Cover Photo</Form.Label>
-                                   <Form.Control type="file" id="file" name="images" accept="image" onChange={this.fileChange} style={{ width: '251px' }} />
+                                   <Form.Control type="file" id="file" name="images" accept="image/*" onChange={(e) => this.fileChange(e)} style={{ width: '251px' }} />
                               </Form.Group>
                               <Form.Group className="mt-3 mb-3">
                                    <Button onClick={this.imageTraceHandler}>Next</Button>
@@ -98,8 +115,7 @@ export class UplBook extends Component {
                                         <Card.Header style={{ color: '#000000' }}>Suggestions</Card.Header>
                                         <Card.Body>
                                              <Card.Text>
-                                                  Some quick example text to build on the card title and make up the bulk
-                                                  of the card's content.
+                                                  {this.state.msg}
                                              </Card.Text>
                                         </Card.Body>
                                    </Card>

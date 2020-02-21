@@ -4,6 +4,7 @@ import { Nav, Navbar, Form, FormControl, Container, NavItem, Button, NavDropdown
 import { GiOpenBook } from 'react-icons/gi';
 import { GiBookCover } from 'react-icons/gi';
 //import { GoSearch } from 'react-icons/go';
+import jwtDecode from 'jwt-decode';
 import {
     NavLink, Redirect, BrowserRouter as Router,
     Switch,
@@ -30,13 +31,26 @@ export class Navbar1 extends Component {
         email: null,
         bookUploadAccess: null,
         materialUploadAccess: null,
-        toolUploadAccess: null
+        toolUploadAccess: null,
+        tokenExpired: false
     }
 
     componentDidMount(e) {
 
-        //e.preventDefault();
-        //this.state.firstName = store.getState().auth.user.first_name
+        var token = store.getState().auth.token;
+        if (token) {
+            var current_time = new Date().getTime() / 1000;
+            console.log(current_time);
+            var decoded = jwtDecode(token);
+
+            if (current_time > decoded.exp) {
+                console.log(jwtDecode(token));
+                this.setState({ tokenExpired: true });
+                localStorage.clear();
+            }
+
+        }
+
         this.setState({
             firstName: store.getState().auth.first_name
         })
@@ -60,6 +74,7 @@ export class Navbar1 extends Component {
             this.setState({
                 bookUploadAccess: false
             })
+            window.localStorage.clear();
             alert("You haven't logged in. Please log in to continue.");
         }
     }
@@ -82,6 +97,7 @@ export class Navbar1 extends Component {
             this.setState({
                 materialUploadAccess: false
             })
+            window.localStorage.clear();
             alert('Please log in to continue the material uploading');
         }
     }
@@ -104,6 +120,7 @@ export class Navbar1 extends Component {
             this.setState({
                 toolUploadAccess: false
             })
+            window.localStorage.clear();
             alert('Please log in to continue the tool uploading');
         }
     }
@@ -138,6 +155,10 @@ export class Navbar1 extends Component {
             return <Redirect to='/UplBook' />
         }
 
+        // if (this.state.tokenExpired === true) {
+        //     return <Redirect to='/Login' />
+        // }
+
         const token = store.getState().auth.token;
 
         const renderAuthButton = () => {
@@ -151,9 +172,9 @@ export class Navbar1 extends Component {
                         <NavLink to="#" className="font1" style={{ marginTop: '2.5%', marginRight: '10%' }}>Home</NavLink>
                         <NavLink to="#" className="font1" style={{ marginTop: '2.5%', marginRight: '10%' }}>AboutUs</NavLink>
                         <NavDropdown title={this.state.firstName} className="font1">
-                            <NavDropdown.Item ><NavLink to='/UploadBook'>Upload Book</NavLink></NavDropdown.Item>
-                            <NavDropdown.Item ><NavLink to='/UploadMat'>Upload Material</NavLink></NavDropdown.Item>
-                            <NavDropdown.Item ><NavLink to='/UploadTool'>Upload Tools</NavLink></NavDropdown.Item>
+                            <NavDropdown.Item ><NavLink to='/UploadBook' onClick={this.checkAuthBook}>Upload Book</NavLink></NavDropdown.Item>
+                            <NavDropdown.Item ><NavLink to='/UploadMat' onClick={this.checkAuthMaterial}>Upload Material</NavLink></NavDropdown.Item>
+                            <NavDropdown.Item ><NavLink to='/UploadTool' onClick={this.checkAuthTool}>Upload Tools</NavLink></NavDropdown.Item>
                             <NavDropdown.Item ><NavLink to='#'>Check History</NavLink></NavDropdown.Item>
                             <NavDropdown.Divider />
                             <NavDropdown.Item><NavLink to="#" className="font1" onClick={this.handelLogout}>Log Out</NavLink></NavDropdown.Item>
