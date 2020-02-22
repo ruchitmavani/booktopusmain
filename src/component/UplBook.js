@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Form, Button, Table, Container, Col, Row, Card } from 'react-bootstrap'
+import { NavLink } from 'react-router-dom';
 import axios from 'axios';
 //import axios from 'axios';
 export class UplBook extends Component {
@@ -102,6 +103,7 @@ export class UplBook extends Component {
                               </Form.Group>
                               <Form.Group className="mt-3 mb-3">
                                    <Button onClick={this.imageTraceHandler}>Next</Button>
+                                   <NavLink to='/'>Home</NavLink>
                               </Form.Group>
                          </Form>
                     </div>
@@ -141,11 +143,21 @@ export class UplBook extends Component {
                                                        </Form.Group>
                                                        <Form.Group>
                                                             <Form.Label for="text">Branch</Form.Label>
-                                                            <Form.Control type="text" name="text" id="Name" placeholder="Branch" style={{ borderRadius: '53px', }} />
+                                                            {/* <Form.Control type="text" name="text" id="Name" placeholder="Branch" style={{ borderRadius: '53px', }} /> */}
+                                                            <Form.Control as="select" name="branch" style={{ borderRadius: '53px', }}>
+                                                                 <option>Computer</option>
+                                                                 <option>Electrical</option>
+                                                                 <option>Electronics</option>
+                                                                 <option>Civil</option>
+                                                                 <option>Mechenical</option>
+                                                                 <option>Robotics</option>
+                                                                 <option>AutoMobile</option>
+                                                                 <option>Aeronotics</option>
+                                                            </Form.Control>
                                                        </Form.Group>
                                                        <Form.Group controlId="formGridState">
                                                             <Form.Label>Semester</Form.Label>
-                                                            <Form.Control as="select" value="Choose..." style={{ borderRadius: '53px', }}>
+                                                            <Form.Control as="select" name="sem" style={{ borderRadius: '53px', }}>
                                                                  <option>1</option>
                                                                  <option>2</option>
                                                                  <option>3</option>
@@ -158,7 +170,7 @@ export class UplBook extends Component {
                                                        </Form.Group>
                                                        <Form.Group controlId="formGridState">
                                                             <Form.Label>Edition</Form.Label>
-                                                            <Form.Control as="select" value="Choose..." style={{ borderRadius: '53px', }}>
+                                                            <Form.Control as="select" name="edition" style={{ borderRadius: '53px', }}>
                                                                  <option>1</option>
                                                                  <option>2</option>
                                                                  <option>3</option>
@@ -172,7 +184,7 @@ export class UplBook extends Component {
                                                        <Form.Group>
                                                             <Form.Label for="exampleNumber">ISBN Code</Form.Label>
                                                             <Form.Control
-                                                                 type="number"
+                                                                 type="tel"
                                                                  name="number"
                                                                  id="exampleNumber"
                                                                  placeholder="ISBN code" style={{ borderRadius: '53px', }} />

@@ -16,7 +16,7 @@ import {
 import './css/index.css';
 import Logout from './Logout';
 import store from './reduxStore';
-import { LOGOUT_SUCCESS } from '../actions/types';
+import { LOGOUT_SUCCESS, SESSION_EXPIRED } from '../actions/types';
 import { Login } from './Login';
 import { login } from '../actions/authActions';
 import { Home } from './Home';
@@ -32,7 +32,7 @@ export class Navbar1 extends Component {
         bookUploadAccess: null,
         materialUploadAccess: null,
         toolUploadAccess: null,
-        tokenExpired: false
+        tokenExpired: null
     }
 
     componentDidMount(e) {
@@ -40,13 +40,17 @@ export class Navbar1 extends Component {
         var token = store.getState().auth.token;
         if (token) {
             var current_time = new Date().getTime() / 1000;
-            console.log(current_time);
+            //console.log('Current time' + current_time);
             var decoded = jwtDecode(token);
+            //console.log('Expiry time' + decoded.exp);
 
             if (current_time > decoded.exp) {
-                console.log(jwtDecode(token));
+
+                this.setState({ msg: 'Your session is expired. Please login again to continue.' });
                 this.setState({ tokenExpired: true });
-                localStorage.clear();
+                store.dispatch({
+                    type: SESSION_EXPIRED
+                })
             }
 
         }
@@ -144,9 +148,9 @@ export class Navbar1 extends Component {
         /**
          * To check the user is logged in or not.. And if not sidho ene login par redirect mar
          */
-        // if (this.state.bookUploadAccess === false) {
-        //     return <Redirect to='/Login' />
-        // }
+        if (this.state.tokenExpired === true) {
+            return <Redirect to='/Login' />
+        }
 
         /**
          * If logged in, then redirect to upload book page
