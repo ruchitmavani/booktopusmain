@@ -10,7 +10,8 @@ var indexRouter = require('./routesMain/index');
 var usersRouter = require('./routesMain/users');
 var authRouter = require('./routesMain/authUser');
 var regApi = require('./routesMain/registerAPI');
-var book = require('./routesMain/imageUploadRoute');
+var book = require('./routesMain/imageTraceRoute');
+var uploadBook = require('./routesMain/imageUploadRoute');
 
 var app = express();
 
@@ -33,6 +34,7 @@ app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 app.use('/regAPI', regApi);
 app.use('/book', book);
+app.use('/book', uploadBook);
 
 
 // catch 404 and forward to error handler

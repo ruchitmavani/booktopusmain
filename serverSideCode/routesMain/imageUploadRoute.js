@@ -1,17 +1,14 @@
 /**
- * This route is created for converting image into the text
- * And send it as a json msg to the frontend for display purpose
+ * This route is used for uploading images
  */
 var express = require('express');
 var router = express.Router();
 var cors = require('cors');
 var multer = require('multer');
-var Tesseract = require('tesseract.js');
 var path = require('path');
-var fs = require('fs');
 router.use(cors());
 
-var imageUploadPath = './public/tracedImages/';
+var imageUploadPath = './public/uploads/';
 
 /**
  * Image uploading setting is here
@@ -47,11 +44,9 @@ function checkFileType(file, cb) {
         cb('Images only in jpeg ,png or jpg format');
     }
 }
-/**
- * POST '/book/imageTrace'
- * Private route
- */
-router.route('/imageTrace')
+
+
+router.route('/uploadBook')
     .post(async (req, res, next) => {
 
         await upload(req, res, (err) => {
@@ -66,43 +61,10 @@ router.route('/imageTrace')
             else {
                 //var imagePath = fs.readFileSync('../public/uploads/' + req.file.filename, { encoding: null });
 
-                var imagePath = '../serverSideCode/public/tracedImages/' + req.file.filename;
+                var imagePath = '../serverSideCode/public/uploads/' + req.file.filename;
                 try {
 
-                    //console.log(imagePath);
-                    //let image = req.file;
-                    Tesseract.recognize(imagePath)
-                        .then(result => {
 
-                            res.status(200).json({ msg: result.data.text });
-
-                            /**
-                             * This deletes the uploaded image after being traced !
-                             * We delete the image after tracing just to remove unwanted
-                             * images to be uploaded to the system.
-                             * We will store the image into the system when the submit 
-                             * button is clicked !
-                             */
-                            fs.unlink(imagePath, (err) => {
-                                if (err) {
-                                    console.error(err)
-                                    return
-                                }
-                                console.log('Traced image successfully deleted !');
-                            })
-                        })
-                        .catch(err => {
-
-                            fs.unlink(imagePath, (err) => {
-                                if (err) {
-                                    console.error(err)
-                                    return
-                                }
-                            })
-
-                            res.status(400).json({ msg: 'Error in file tracing :' + err });
-
-                        })
                 } catch (error) {
 
                     fs.unlink(imagePath, (err) => {
@@ -118,25 +80,5 @@ router.route('/imageTrace')
         })
     })
 
-// router.route('/imageTrace')
-//     .post((req, res, next) => {
-
-//         console.log(req.file);
-//         if (req.file === undefined) {
-//             res.status(400).json({ msg: 'No file selected !' });
-//         }
-//         else {
-
-//             Tesseract.recognize(req.file)
-//                 .then(result => {
-
-//                     res.status(200).json({ msg: result.data.text });
-//                 })
-//                 .catch(err => {
-
-//                     res.status(400).json({ msg: 'Error :' + err });
-//                 })
-//         }
-//     })
 
 module.exports = router;
