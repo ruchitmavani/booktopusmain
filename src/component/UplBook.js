@@ -1,19 +1,27 @@
 import React, { Component } from 'react'
 import { Form, Button, Table, Container, Col, Row, Card } from 'react-bootstrap'
-import { NavLink } from 'react-router-dom';
+import { NavLink, Redirect } from 'react-router-dom';
+import store from './reduxStore';
 import axios from 'axios';
 //import axios from 'axios';
 export class UplBook extends Component {
      state = {
-          step: 1,
 
-          // step 1
+          step: 1,
           file: null,
-          // pictures: [],
-          msg: ''
-          // step 2
+          msg: '',
+
+          book_title: '',
+          description: '',
+          authorName: '',
+          branch: '',
+          semester: '',
+          edition: '',
+          isbnCode: '',
+          bookUploaded: null
 
      }
+
      nextStep = () => {
           const { step } = this.state;
           this.setState({
@@ -32,11 +40,7 @@ export class UplBook extends Component {
      }
      fileChange = e => {
           e.preventDefault();
-          // this.setState({
-          //      file: e.target.files[0],
-          // })
-          // console.log(e.target.files);
-          // console.log(e.target.files[0]);
+
           let file = e.target.files[0];
           this.setState({
                file: file
@@ -61,11 +65,11 @@ export class UplBook extends Component {
                await axios
                     .post('/book/imageTrace', formData, headers)
                     .then(res => {
-                         alert('Into the right one');
+                         //alert('Into the right one');
                          this.setState({
                               msg: res.data.msg
                          })
-                         alert(this.state.msg);
+                         //alert(this.state.msg);
 
                          // this.setState({
                          //      step: step + 1
@@ -89,6 +93,58 @@ export class UplBook extends Component {
 
 
 
+     }
+
+     handleSubmit = async (e) => {
+
+          e.preventDefault();
+
+          /**
+           * This method is used to upload the book details
+           */
+
+          var { book_title, description, authorName, branch, semester, edition, isbnCode, file } = this.state;
+          book_title = book_title.toLowerCase().trimLeft();
+          description = description.toLowerCase().trimLeft();
+          authorName = authorName.toLowerCase().trimLeft();
+          branch = branch.toLowerCase().trimLeft();
+          isbnCode = isbnCode.trimLeft();
+
+          var user_id = store.getState().auth.id;
+
+          const headers = {
+               "Content-Type": "form-data"
+          };
+
+          let formData = new FormData();
+
+          formData.append('images', file);
+          formData.append('book_title', book_title);
+          formData.append('description', description);
+          formData.append('authorName', authorName);
+          formData.append('branch', branch);
+          formData.append('semester', semester);
+          formData.append('edition', edition);
+          formData.append('isbnCode', isbnCode);
+          formData.append('user_id', user_id);
+
+          await axios
+               .post('/book/uploadBook', formData, headers)
+               .then(res => {
+
+                    this.setState({
+                         msg: res.data.msg,
+                         bookUploaded: true
+                    })
+                    alert(this.state.msg);
+               })
+               .catch(err => {
+                    this.setState({
+                         msg: err.response.data.msg,
+                         bookUploaded: false
+                    })
+                    alert('Error :' + this.state.msg);
+               })
      }
      showStep = () => {
           const { step, } = this.state;
@@ -131,20 +187,20 @@ export class UplBook extends Component {
                                                   <Form style={{ maxWidth: '75%', margin: 'auto', marginTop: '15%', marginBottom: '15%', fontFamily: 'Roboto', fontSize: '16px' }} >
                                                        <Form.Group>
                                                             <Form.Label>Title</Form.Label>
-                                                            <Form.Control type="text" name="text" id="Name" placeholder="Title" style={{ borderRadius: '53px', }} />
+                                                            <Form.Control type="text" name="book_title" onChange={this.handleChange('book_title')} id="Name" placeholder="Title" style={{ borderRadius: '53px', }} />
                                                        </Form.Group>
                                                        <Form.Group>
                                                             <Form.Label >Description</Form.Label>
-                                                            <Form.Control type="textarea" name="text" id="Description" placeholder="Description" style={{ borderRadius: '53px', }} />
+                                                            <Form.Control type="textarea" name="description" onChange={this.handleChange('description')} id="Description" placeholder="Description" style={{ borderRadius: '53px', }} />
                                                        </Form.Group>
                                                        <Form.Group>
                                                             <Form.Label for="text">Author Name</Form.Label>
-                                                            <Form.Control type="text" name="text" id="Name" placeholder="Author name" style={{ borderRadius: '53px', }} />
+                                                            <Form.Control type="text" name="authorName" onChange={this.handleChange('authorName')} id="Name" placeholder="Author name" style={{ borderRadius: '53px', }} />
                                                        </Form.Group>
                                                        <Form.Group>
-                                                            <Form.Label for="text">Branch</Form.Label>
-                                                            {/* <Form.Control type="text" name="text" id="Name" placeholder="Branch" style={{ borderRadius: '53px', }} /> */}
-                                                            <Form.Control as="select" name="branch" style={{ borderRadius: '53px', }}>
+                                                            <Form.Label>Branch</Form.Label>
+                                                            <Form.Control as="select" name="branch" onChange={this.handleChange('branch')} style={{ borderRadius: '53px', }}>
+                                                                 <option>None</option>
                                                                  <option>Computer</option>
                                                                  <option>Electrical</option>
                                                                  <option>Electronics</option>
@@ -157,7 +213,8 @@ export class UplBook extends Component {
                                                        </Form.Group>
                                                        <Form.Group controlId="formGridState">
                                                             <Form.Label>Semester</Form.Label>
-                                                            <Form.Control as="select" name="sem" style={{ borderRadius: '53px', }}>
+                                                            <Form.Control as="select" name="semester" onChange={this.handleChange('semester')} style={{ borderRadius: '53px', }}>
+                                                                 <option>None</option>
                                                                  <option>1</option>
                                                                  <option>2</option>
                                                                  <option>3</option>
@@ -170,7 +227,8 @@ export class UplBook extends Component {
                                                        </Form.Group>
                                                        <Form.Group controlId="formGridState">
                                                             <Form.Label>Edition</Form.Label>
-                                                            <Form.Control as="select" name="edition" style={{ borderRadius: '53px', }}>
+                                                            <Form.Control as="select" name="edition" onChange={this.handleChange('edition')} style={{ borderRadius: '53px', }}>
+                                                                 <option>None</option>
                                                                  <option>1</option>
                                                                  <option>2</option>
                                                                  <option>3</option>
@@ -185,16 +243,14 @@ export class UplBook extends Component {
                                                             <Form.Label for="exampleNumber">ISBN Code</Form.Label>
                                                             <Form.Control
                                                                  type="tel"
-                                                                 name="number"
+                                                                 name="isbnCode"
+                                                                 onChange={this.handleChange('isbnCode')}
                                                                  id="exampleNumber"
                                                                  placeholder="ISBN code" style={{ borderRadius: '53px', }} />
                                                        </Form.Group>
                                                        <Button onClick={this.prevStep} style={{ marginRight: '15px' }}>Back</Button>
-                                                       {/*
-                                                        Ahiya on submit wali method banavani baki che !! Suta pehla banavi deje 
-                                                       Ho ne !!
-                                                        */}
-                                                       <Button onClick={() => alert("New Book uploaded successfully!!")}>Upload Book</Button>
+                        
+                                                       <Button onClick={this.handleSubmit}>Upload Book</Button>
                                                   </Form>
                                              </td>
                                         </tr>
@@ -205,6 +261,14 @@ export class UplBook extends Component {
                );
      }
      render() {
+
+          /**
+           * if book is uploaded then redirect to the home page
+           */
+          if (this.state.bookUploaded === true) {
+               return <Redirect to='/' />
+          }
+
           return (
                <>
                     {this.showStep()}

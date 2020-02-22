@@ -16,6 +16,7 @@ var uploadBookSchema = mongoose.Schema({
     semester: String,
     edition: Number,
     isbnCode: Number,
+    imageName: String,
     availability: Boolean,
 
     uploadedBy_id: {
@@ -25,6 +26,11 @@ var uploadBookSchema = mongoose.Schema({
     uploadedAt: {
         type: Date,
         default: Date.now(),
+    },
+
+    updatedAt: {
+        type: Date,
+        default: Date.now()
     }
 })
 

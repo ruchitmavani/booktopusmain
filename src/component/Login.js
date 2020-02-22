@@ -24,7 +24,6 @@ import { Home } from './Home';
 
 export class Login extends Component {
 
-
     state = {
         email: '',
         password: '',
@@ -32,10 +31,6 @@ export class Login extends Component {
         isAuthenticated: false,
         loginSuccess: false
     };
-
-    // componentDidMount() {
-    //     window.localStorage.clear();
-    // }
 
     handleChange = input => e => {
         this.setState({ [input]: e.target.value });

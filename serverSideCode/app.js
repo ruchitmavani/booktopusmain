@@ -21,6 +21,11 @@ app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 
+/**
+ * Aa samajvanu che
+ */
+app.disable('etag');
+
 /** json parser and body parser here */
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

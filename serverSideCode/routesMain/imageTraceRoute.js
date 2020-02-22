@@ -9,6 +9,8 @@ var multer = require('multer');
 var Tesseract = require('tesseract.js');
 var path = require('path');
 var fs = require('fs');
+
+
 router.use(cors());
 
 var imageUploadPath = './public/tracedImages/';

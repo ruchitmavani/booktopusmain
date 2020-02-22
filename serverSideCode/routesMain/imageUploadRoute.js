@@ -6,6 +6,8 @@ var router = express.Router();
 var cors = require('cors');
 var multer = require('multer');
 var path = require('path');
+var bookModel = require('../models/uploadBook.model');
+
 router.use(cors());
 
 var imageUploadPath = './public/uploads/';
@@ -62,8 +64,31 @@ router.route('/uploadBook')
                 //var imagePath = fs.readFileSync('../public/uploads/' + req.file.filename, { encoding: null });
 
                 var imagePath = '../serverSideCode/public/uploads/' + req.file.filename;
+
                 try {
 
+                    var newBook = new bookModel({
+
+                        book_title: req.body.book_title,
+                        description: req.body.description,
+                        authorName: req.body.authorName,
+                        branch: req.body.branch,
+                        semester: req.body.semester,
+                        edition: req.body.edition,
+                        isbnCode: req.body.isbnCode,
+                        imageName: req.file.filename,
+                        availability: 1,
+                        uploadedBy_id: req.body.user_id
+                    })
+
+                    newBook.save()
+                        .then((result, err) => {
+
+                            res.status(200).json({ msg: 'Your book is uploaded successfully.' });
+                        })
+                        .catch(err => {
+                            res.status(400).json({ msg: 'Error :' + err });
+                        })
 
                 } catch (error) {
 
@@ -80,5 +105,17 @@ router.route('/uploadBook')
         })
     })
 
+router.route('/getBookData')
+    .get(async (req, res, next) => {
+
+        await bookModel.find()
+            .then(docs => {
+
+                res.status(200).json({ bookData: docs });
+            })
+            .catch(err => {
+                res.status(400).json({ msg: 'Error :' + err });
+            })
+    })
 
 module.exports = router;
