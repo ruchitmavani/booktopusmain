@@ -11,6 +11,9 @@ const store = createStore(
     initialState,
     compose(
         applyMiddleware(...middleware),
+        /**
+         * Disable this extension when you deliever the project
+         */
         window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
     ));
 

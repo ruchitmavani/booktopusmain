@@ -18,3 +18,5 @@ export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
 
 export const GET_ERRORS = 'GET_ERRORS';
 export const CLEAR_ERRORS = 'CLEAR_ERRORS';
+
+export const SESSION_EXPIRED = 'SESSION_EXPIRED';

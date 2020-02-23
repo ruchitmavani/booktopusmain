@@ -24,10 +24,6 @@ import { Home } from './Home';
 
 export class Login extends Component {
 
-    constructor(props) {
-        super(props);
-    }
-
     state = {
         email: '',
         password: '',
@@ -155,7 +151,8 @@ export class Login extends Component {
                                 <div style={{ textAlign: 'center', marginTop: '15px', fontFamily: 'Verdana' }}>
                                     <Link to="/Register" style={{ color: 'Black' }}>Sign up</Link>
                                     <span className="p-2" style={{ fontSize: '20px', color: 'Black' }}>|</span>
-                                    <a href='/'>Home</a>
+                                    {/* <a href='/'>Home</a> */}
+                                    <Link to="/" style={{ color: 'Black' }}>Home</Link>
                                     <span className="p-2" style={{ fontSize: '20px', color: 'Black' }}>|</span>
                                     <Link to="/Forgotpassword" style={{ color: 'Black' }}>Forgot Password</Link>
                                 </div>

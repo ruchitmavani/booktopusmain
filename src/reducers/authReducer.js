@@ -6,7 +6,8 @@ import {
     REGISTER_FAIL,
     REGISTER_SUCCESS,
     USER_LOADED,
-    USER_LOADING
+    USER_LOADING,
+    SESSION_EXPIRED
 } from '../actions/types';
 
 const initialState = {
@@ -59,18 +60,18 @@ export default function (state = initialState, action) {
         case AUTH_ERROR:
         case LOGIN_FAIL:
         case LOGOUT_SUCCESS:
-            localStorage.removeItem('id');
-            localStorage.removeItem('first_name');
-            localStorage.removeItem('last_name');
-            localStorage.removeItem('email');
-            localStorage.removeItem('token');
-
+        case SESSION_EXPIRED:
+            localStorage.clear();
             return {
                 ...state,
                 isAuthinticated: false,
                 isLoading: false,
                 token: null,
-                msg: null
+                msg: null,
+                id: null,
+                first_name: null,
+                last_name: null,
+                email: null
             }
 
         default:

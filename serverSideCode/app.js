@@ -6,10 +6,12 @@ var logger = require('morgan');
 var cors = require('cors');
 var bodyParser = require('body-parser');  // body parser to handle post request
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var authRouter = require('./routes/authUser');
-var regApi = require('./routes/registerAPI');
+var indexRouter = require('./routesMain/index');
+var usersRouter = require('./routesMain/users');
+var authRouter = require('./routesMain/authUser');
+var regApi = require('./routesMain/registerAPI');
+var book = require('./routesMain/imageTraceRoute');
+var uploadBook = require('./routesMain/imageUploadRoute');
 
 var app = express();
 
@@ -18,6 +20,11 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 app.use(logger('dev'));
+
+/**
+ * Aa samajvanu che
+ */
+app.disable('etag');
 
 /** json parser and body parser here */
 app.use(express.json());
@@ -31,6 +38,8 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 app.use('/regAPI', regApi);
+app.use('/book', book);
+app.use('/book', uploadBook);
 
 
 // catch 404 and forward to error handler

@@ -4,6 +4,7 @@ import { Nav, Navbar, Form, FormControl, Container, NavItem, Button, NavDropdown
 import { GiOpenBook } from 'react-icons/gi';
 import { GiBookCover } from 'react-icons/gi';
 //import { GoSearch } from 'react-icons/go';
+import jwtDecode from 'jwt-decode';
 import {
     NavLink, Redirect, BrowserRouter as Router,
     Switch,
@@ -15,7 +16,7 @@ import {
 import './css/index.css';
 import Logout from './Logout';
 import store from './reduxStore';
-import { LOGOUT_SUCCESS } from '../actions/types';
+import { LOGOUT_SUCCESS, SESSION_EXPIRED } from '../actions/types';
 import { Login } from './Login';
 import { login } from '../actions/authActions';
 import { Home } from './Home';
@@ -26,17 +27,109 @@ export class Navbar1 extends Component {
         token: null,
         logoutSuccess: false,
         firstName: null,
-        lastName: '',
-        email: ''
+        lastName: null,
+        email: null,
+        bookUploadAccess: null,
+        materialUploadAccess: null,
+        toolUploadAccess: null,
+        tokenExpired: null,
+        msg: ''
     }
 
     componentDidMount(e) {
 
-        //        e.preventDefault();
-        //this.state.firstName = store.getState().auth.user.first_name
+        var token = store.getState().auth.token;
+        if (token) {
+            var current_time = new Date().getTime() / 1000;
+            //console.log('Current time' + current_time);
+            var decoded = jwtDecode(token);
+            //console.log('Expiry time' + decoded.exp);
+
+            if (current_time > decoded.exp) {
+
+                this.setState({ msg: 'Your session is expired. Please login again to continue.' });
+                this.setState({ tokenExpired: true });
+                store.dispatch({
+                    type: SESSION_EXPIRED
+                })
+                alert(this.state.msg);
+            }
+
+
+        }
+
         this.setState({
             firstName: store.getState().auth.first_name
         })
+    }
+
+    checkAuthBook = e => {
+
+        const token = store.getState().auth.token;
+        /**
+         * If user is logged in then token will not be empty
+         */
+        if (token) {
+            this.setState({
+                bookUploadAccess: true
+            })
+        }
+        /**
+         * Not logged in
+         */
+        else {
+            this.setState({
+                bookUploadAccess: false
+            })
+            window.localStorage.clear();
+            alert("You haven't logged in. Please log in to continue.");
+        }
+    }
+
+    checkAuthMaterial = e => {
+
+        const token = store.getState().auth.token;
+        /**
+         * If user is logged in then token will not be empty
+         */
+        if (token) {
+            this.setState({
+                materialUploadAccess: true
+            })
+        }
+        /**
+         * Not logged in
+         */
+        else {
+            this.setState({
+                materialUploadAccess: false
+            })
+            window.localStorage.clear();
+            alert('Please log in to continue the material uploading');
+        }
+    }
+
+    checkAuthTool = e => {
+
+        const token = store.getState().auth.token;
+        /**
+         * If user is logged in then token will not be empty
+         */
+        if (token) {
+            this.setState({
+                toolUploadAccess: true
+            })
+        }
+        /**
+         * Not logged in
+         */
+        else {
+            this.setState({
+                toolUploadAccess: false
+            })
+            window.localStorage.clear();
+            alert('Please log in to continue the tool uploading');
+        }
     }
 
     handelLogout = e => {
@@ -55,15 +148,25 @@ export class Navbar1 extends Component {
 
     render() {
 
-        const token = store.getState().auth.token;
-
-        if (this.state.redirect === true) {
+        /**
+         * To check the user is logged in or not.. And if not sidho ene login par redirect mar
+         */
+        if (this.state.tokenExpired === true) {
             return <Redirect to='/' />
         }
 
-        else if (this.state.logoutSuccess === true) {
-            return <Redirect to='/Login' />
+        /**
+         * If logged in, then redirect to upload book page
+         */
+        if (this.state.bookUploadAccess === true) {
+            return <Redirect to='/UplBook' />
         }
+
+        // if (this.state.tokenExpired === true) {
+        //     return <Redirect to='/Login' />
+        // }
+
+        const token = store.getState().auth.token;
 
         const renderAuthButton = () => {
             if (token !== null) {
@@ -72,23 +175,14 @@ export class Navbar1 extends Component {
                  */
                 return (
                     <React.Fragment>
-                        {/* <NavLink to="/" className="font1" style={{ marginRight: '30px', marginLeft: '300px', fontSize: "22px", marginTop: '5px' }}>Home</NavLink>
-                        <NavLink to="/AboutUs" className="font1" style={{ marginRight: '30px', marginLeft: '5px', fontSize: "22px", marginTop: '5px' }}>About Us</NavLink>
 
-                        <NavDropdown title={this.state.firstName} id="collasible-nav-dropdown" style={{ marginRight: '30px', marginLeft: '5px', fontSize: "22px", marginTop: '5px' }}>
-                            <NavDropdown.Item ><NavLink to="#" className="font1">Upload Book</NavLink></NavDropdown.Item>
-                            <NavDropdown.Item ><NavLink to="#" className="font1">Check History</NavLink></NavDropdown.Item>
-                            <NavDropdown.Item><NavLink to="#" className="font1">Edit Profile</NavLink></NavDropdown.Item>
-                            <NavDropdown.Divider />
-                            <NavDropdown.Item><NavLink to="#" className="font1" onClick={this.handelLogout}>Logout</NavLink ></NavDropdown.Item>
-                        </NavDropdown> */}
                         <NavLink to="#" className="font1" style={{ marginTop: '2.5%', marginRight: '10%' }}>Home</NavLink>
                         <NavLink to="#" className="font1" style={{ marginTop: '2.5%', marginRight: '10%' }}>AboutUs</NavLink>
                         <NavDropdown title={this.state.firstName} className="font1">
-                            <NavDropdown.Item >Upload Book</NavDropdown.Item>
-                            <NavDropdown.Item >Upload Material</NavDropdown.Item>
-                            <NavDropdown.Item >Upload Tools</NavDropdown.Item>
-                            <NavDropdown.Item >Check History</NavDropdown.Item>
+                            <NavDropdown.Item ><NavLink to='/UploadBook' onClick={this.checkAuthBook}>Upload Book</NavLink></NavDropdown.Item>
+                            <NavDropdown.Item ><NavLink to='/UploadMat' onClick={this.checkAuthMaterial}>Upload Material</NavLink></NavDropdown.Item>
+                            <NavDropdown.Item ><NavLink to='/UploadTool' onClick={this.checkAuthTool}>Upload Tools</NavLink></NavDropdown.Item>
+                            <NavDropdown.Item ><NavLink to='#'>Check History</NavLink></NavDropdown.Item>
                             <NavDropdown.Divider />
                             <NavDropdown.Item><NavLink to="#" className="font1" onClick={this.handelLogout}>Log Out</NavLink></NavDropdown.Item>
                         </NavDropdown>
@@ -106,23 +200,14 @@ export class Navbar1 extends Component {
                 return (
 
                     <React.Fragment>
-                        {/* <NavLink to="/" className="font1" style={{ marginRight: '30px', marginLeft: '300px', fontSize: "22px", marginTop: '5px' }}>Home</NavLink>
-                        <NavLink to="/AboutUs" className="font1" style={{ marginRight: '30px', marginLeft: '5px', fontSize: "22px", marginTop: '5px' }}>About Us</NavLink>
 
-                        <NavDropdown title='More' id="collasible-nav-dropdown" style={{ marginRight: '30px', marginLeft: '5px', fontSize: "22px", marginTop: '5px' }}>
-                            <NavDropdown.Item ><NavLink to="#" className="font1">Upload Book</NavLink></NavDropdown.Item>
-                            <NavDropdown.Item ><NavLink to="#" className="font1">Check History</NavLink></NavDropdown.Item>
-                            <NavDropdown.Item><NavLink to="#" className="font1">Edit Profile</NavLink></NavDropdown.Item>
-                            <NavDropdown.Divider />
-                            <NavDropdown.Item><NavLink to="/Login" className="font1">Log In</NavLink ></NavDropdown.Item>
-                        </NavDropdown> */}
                         <NavLink to="#" className="font1" style={{ marginTop: '2.5%', marginRight: '10%' }}>Home</NavLink>
                         <NavLink to="#" className="font1" style={{ marginTop: '2.5%', marginRight: '10%' }}>AboutUs</NavLink>
                         <NavDropdown title="More" className="font1">
-                            <NavDropdown.Item >Upload Book</NavDropdown.Item>
-                            <NavDropdown.Item >Upload Material</NavDropdown.Item>
-                            <NavDropdown.Item >Upload Tools</NavDropdown.Item>
-                            <NavDropdown.Item >Check History</NavDropdown.Item>
+                            <NavDropdown.Item onClick={this.checkAuthBook}>Upload Book</NavDropdown.Item>
+                            <NavDropdown.Item onClick={this.checkAuthMaterial}>Upload Material</NavDropdown.Item>
+                            <NavDropdown.Item onClick={this.checkAuthTool}>Upload Tools</NavDropdown.Item>
+                            {/* <NavDropdown.Item onClick={this.checkHistoryAccess}>Check History</NavDropdown.Item> */}
                             <NavDropdown.Divider />
                             <NavDropdown.Item><NavLink to="/Login" className="font1">Log In</NavLink></NavDropdown.Item>
                         </NavDropdown>
@@ -133,25 +218,7 @@ export class Navbar1 extends Component {
 
         return (
             <div>
-                {/* <Navbar className="navbar" expand="lg">
-                    <Container fluid>
-                        <GiOpenBook size="50px" style={{ marginRight: '10px', color: '#535758' }} />
-                        <Navbar.Brand style={{ color: 'white', marginRight: '100px' }}>
-                       <NavLink to="/" style={{ color: '#15181b', fontFamily: 'Oswald', fontWeight: 'bold' }}>BOOKTOPUS</NavLink>
-                        </Navbar.Brand>
-                        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                        <Navbar.Collapse id="basic-navbar-nav">
-                            <Form inline >
-                                <FormControl type="text" className="icon" placeholder="Search" style={{ borderRadius: '53px', marginRight: '10px' }} />
 
-                            </Form>
-                            <Nav className="ml-auto">
-                                {renderAuthButton()}
-                            </Nav>
-
-                        </Navbar.Collapse>
-                    </Container>
-                </Navbar> */}
                 <Navbar className="navbar" expand="lg">
                     <GiBookCover size="50px" className="font1" style={{ marginRight: '10px' }} />
                     <Navbar.Brand>
