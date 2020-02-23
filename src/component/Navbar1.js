@@ -32,7 +32,8 @@ export class Navbar1 extends Component {
         bookUploadAccess: null,
         materialUploadAccess: null,
         toolUploadAccess: null,
-        tokenExpired: null
+        tokenExpired: null,
+        msg: ''
     }
 
     componentDidMount(e) {
@@ -51,7 +52,9 @@ export class Navbar1 extends Component {
                 store.dispatch({
                     type: SESSION_EXPIRED
                 })
+                alert(this.state.msg);
             }
+
 
         }
 
@@ -149,7 +152,7 @@ export class Navbar1 extends Component {
          * To check the user is logged in or not.. And if not sidho ene login par redirect mar
          */
         if (this.state.tokenExpired === true) {
-            return <Redirect to='/Login' />
+            return <Redirect to='/' />
         }
 
         /**

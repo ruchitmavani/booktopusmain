@@ -2,9 +2,12 @@ import React, { Component } from 'react'
 import { Form, Button, Table, Container, Col, Row, Card } from 'react-bootstrap'
 import { NavLink, Redirect } from 'react-router-dom';
 import store from './reduxStore';
+import jwtDecode from 'jwt-decode';
+import { SESSION_EXPIRED } from '../actions/types';
 import axios from 'axios';
 //import axios from 'axios';
 export class UplBook extends Component {
+
      state = {
 
           step: 1,
@@ -18,10 +21,33 @@ export class UplBook extends Component {
           semester: '',
           edition: '',
           isbnCode: '',
-          bookUploaded: null
+          bookUploaded: null,
+          tokenExpired: ''
 
      }
 
+     componentDidMount(e) {
+
+          //e.preventDefault();
+
+          var token = store.getState().auth.token;
+          if (token) {
+               var current_time = new Date().getTime() / 1000;
+               //console.log('Current time' + current_time);
+               var decoded = jwtDecode(token);
+               //console.log('Expiry time' + decoded.exp);
+
+               if (current_time > decoded.exp) {
+
+                    this.setState({ msg: 'Your session is expired. Please login again to continue.' });
+                    this.setState({ tokenExpired: true });
+                    store.dispatch({
+                         type: SESSION_EXPIRED
+                    })
+                    alert(this.state.msg);
+               }
+          }
+     }
      nextStep = () => {
           const { step } = this.state;
           this.setState({
@@ -57,7 +83,7 @@ export class UplBook extends Component {
            * Here we convert our image into text
            */
           let file = this.state.file
-          console.log(this.state.file)
+          //console.log(this.state.file)
           let formData = new FormData();
           formData.append('images', file);
 
@@ -146,6 +172,7 @@ export class UplBook extends Component {
                     alert('Error :' + this.state.msg);
                })
      }
+
      showStep = () => {
           const { step, } = this.state;
           if (step === 1)
@@ -249,7 +276,7 @@ export class UplBook extends Component {
                                                                  placeholder="ISBN code" style={{ borderRadius: '53px', }} />
                                                        </Form.Group>
                                                        <Button onClick={this.prevStep} style={{ marginRight: '15px' }}>Back</Button>
-                        
+
                                                        <Button onClick={this.handleSubmit}>Upload Book</Button>
                                                   </Form>
                                              </td>
@@ -260,12 +287,17 @@ export class UplBook extends Component {
                     </Container>
                );
      }
+
      render() {
 
           /**
            * if book is uploaded then redirect to the home page
            */
           if (this.state.bookUploaded === true) {
+               return <Redirect to='/' />
+          }
+
+          if (this.state.tokenExpired === true) {
                return <Redirect to='/' />
           }
 
